@@ -262,3 +262,29 @@ def check_paren(stripped_line, paren_is_open, quote_is_open, double_quote_is_ope
             continue
 
     return paren_is_open
+
+
+def count_standalone_paren(filepath):
+    """ Count standalone parenthesis """
+    num_standalone = 0
+    is_standalone = False
+
+    with open(filepath, "r") as f:
+        lines = f.readlines()
+
+    for aline in lines:
+        striped_line = list(aline.strip())
+        for item in striped_line:
+            if item == '':
+                continue
+            elif item in ['[', ']', '{', '}', '(', ')']:
+                is_standalone = True
+            else:
+                is_standalone = False
+                break
+
+        if is_standalone:
+            num_standalone += 1
+            is_standalone = False
+
+    return num_standalone
