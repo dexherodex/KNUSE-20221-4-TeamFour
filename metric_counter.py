@@ -49,6 +49,33 @@ def count_hash(stripped_line):
     return num_hash
 
 
+def hash_in_string(stripped_line, quote):
+    """ Check whether hash(#) is in string """
+    quote_is_open = False
+    hash_in_str = False
+
+    compare_quote = ""
+    if quote == '"':
+        compare_quote = '"'
+    if quote == "'":
+        compare_quote = "'"
+
+    for item in stripped_line:
+        if item == compare_quote:
+            if not quote_is_open:
+                quote_is_open = True
+            else:
+                quote_is_open = False
+
+        if item == '#':
+            if quote_is_open:
+                hash_in_str = True
+            else:
+                hash_in_str = False
+
+    return hash_in_str
+
+
 def parse_file(filepath):
     """ Parsing file to AST """
     with open(filepath, "r") as f:
