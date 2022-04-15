@@ -19,5 +19,5 @@ How To Run Program
 
 Language
 --------
-* ###Implementation Language: Python
-* ###Target Language:   Python
++ ###Implementation Language: Python
++ ###Target Language:   Python
