@@ -1,4 +1,5 @@
 import ast
+import sys
 
 
 def read_lines(filepath):
@@ -291,29 +292,44 @@ def count_standalone_paren(filepath):
 
 
 def main():
+    if len(sys.argv) < 3:
+        print(f"Usage: <{sys.argv[0]}> <in.file> <out.file>\n")
+        exit(0)
+
     # input file's path
-    filepath = "sample/sample.py"
+    infile = sys.argv[1]
+
     # count number of lines if file
-    num_all_code_lines = count_lines_of_code(filepath)
+    num_all_code_lines = count_lines_of_code(infile)
     # count number of blanks in file
-    num_blank = count_blank(filepath)
+    num_blank = count_blank(infile)
     # count number of comment lines
-    num_comment, num_only_comment = count_comment(filepath)
+    num_comment, num_only_comment = count_comment(infile)
     # count standalone parenthesis
-    num_standalone = count_standalone_paren(filepath)
+    num_standalone = count_standalone_paren(infile)
     # number of lines without blanks (LOC)
     num_code_lines = num_all_code_lines - num_blank - num_only_comment
     # number of effective lines (eLOC)
     effective = num_all_code_lines - num_blank - num_only_comment - num_standalone
     # count number of function
-    num_function = count_function(filepath)
+    num_function = count_function(infile)
     # count_function2(filepath)
 
-    print(f"LOC: {num_code_lines}")
-    print(f"eLOC: {effective}")
-    print(f"Comment: {num_comment}")
-    print(f"Blank: {num_blank}")
-    print(f"No. of Functions: {num_function}")
+    outfile = open(sys.argv[2], "w")
+
+    loc = "LOC: %d\n" % num_code_lines
+    eloc = "eLOC: %d\n" % effective
+    comment = "Comment: %d\n" % num_comment
+    blank = "Blank: %d\n" % num_blank
+    no_of_function = "No. of Functions: %d\n" % num_function
+
+    outfile.write(loc)
+    outfile.write(eloc)
+    outfile.write(comment)
+    outfile.write(blank)
+    outfile.write(no_of_function)
+
+    outfile.close()
 
 
 if __name__ == "__main__":
