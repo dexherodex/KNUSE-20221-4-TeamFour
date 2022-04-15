@@ -111,38 +111,36 @@ def hash_in_string(stripped_line, quote):
 
 def count_three_quotes(stripped_line, quote_is_open, double_quote_is_open):
     """ Count number of quotes comment """
-    num_quotes = 0
+    num_comment = 0
 
     quotes_pair = check_three_quotes(stripped_line, "'", quote_is_open)
     double_quotes_pair = check_three_quotes(stripped_line, '"', double_quote_is_open)
 
     """ single quote """
     if quotes_pair == 2 and not quote_is_open:
-        num_quotes += 1
+        num_comment += 1
     elif quotes_pair == 1:
         if not quote_is_open:
             quote_is_open = True
         else:
             quote_is_open = False
-        num_quotes += 1
-    else:
-        if quote_is_open and quotes_pair != -1:
-            num_quotes += 1
+        num_comment += 1
+    elif quote_is_open and quotes_pair != -1:
+        num_comment += 1
 
     """ double quote """
     if double_quotes_pair == 2 and not double_quote_is_open:
-        num_quotes += 1
+        num_comment += 1
     elif double_quotes_pair == 1:
         if not double_quote_is_open:
             double_quote_is_open = True
         else:
             double_quote_is_open = False
-        num_quotes += 1
-    else:
-        if double_quote_is_open and double_quotes_pair != -1:
-            num_quotes += 1
+        num_comment += 1
+    elif double_quote_is_open and double_quotes_pair != -1:
+        num_comment += 1
 
-    return num_quotes, quote_is_open, double_quote_is_open
+    return num_comment, quote_is_open, double_quote_is_open
 
 
 def check_three_quotes(stripped_line, quote, quote_open):
