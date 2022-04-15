@@ -7,6 +7,8 @@ def read_lines(filepath):
     with open(filepath, "r") as f:
         lines = f.readlines()
 
+    f.close()
+
     return lines
 
 
@@ -229,7 +231,11 @@ def check_three_quotes(stripped_line, quote, quote_open):
 def parse_file(filepath):
     """ Parsing file to AST """
     with open(filepath, "r") as f:
-        return ast.parse(f.read(), filename=filepath)
+        ptree = ast.parse(f.read(), filename=filepath)
+
+    f.close()
+
+    return ptree
 
 
 def count_function(filepath):
@@ -287,6 +293,8 @@ def count_standalone_paren(filepath):
         if is_standalone:
             num_standalone += 1
             is_standalone = False
+
+    f.close()
 
     return num_standalone
 
