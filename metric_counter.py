@@ -113,6 +113,8 @@ def check_three_quotes(aline, quote, quote_open):
     encase_stack = 0
     encase_full = 2
 
+    paren_is_open = [False, False, False]
+
     for item in stripped_line:
         if item == '#' and not quote_open:
             # when quotes are in hash(#) comment
@@ -121,29 +123,44 @@ def check_three_quotes(aline, quote, quote_open):
             # when quotes assign to some variable
             return 0
 
-        if item == compare_quote:
-            if len(stack_open) < full and len(stack_close) < full:
-                stack_open.append(item)
-            elif len(stack_open) == full:
-                stack_close.append(item)
+        # when quote is in parentheses
+        if item == '(' and stack_open != full:
+            paren_is_open[0] = True
+        elif item == ')':
+            paren_is_open[0] = False
+        elif item == '{' and stack_open != full:
+            paren_is_open[1] = True
+        elif item == '}':
+            paren_is_open[1] = False
+        elif item == '[' and stack_open != full:
+            paren_is_open[2] = True
+        elif item == ']':
+            paren_is_open[2] = False
+
+        if not paren_is_open[0] and not paren_is_open[1] and not paren_is_open[2]:
+            if item == compare_quote:
+                if len(stack_open) < full and len(stack_close) < full:
+                    stack_open.append(item)
+                elif len(stack_open) == full:
+                    stack_close.append(item)
+                else:
+                    continue
+            elif item == encase_quote:
+                # if quotes are in the other quotes
+                # Example: '"""' or "'''"
+                if not is_encase_open:
+                    encase_stack += 1
+                    is_encase_open = True
+                elif is_encase_open:
+                    encase_stack += 1
+                    if encase_stack > encase_full:
+                        encase_stack = 0
+                        is_encase_open = False
             else:
-                continue
-        elif item == encase_quote:
-            # if quotes are in the other quotes
-            # Example: '"""' or "'''"
-            if not is_encase_open:
-                encase_stack += 1
-                is_encase_open = True
-            elif is_encase_open:
-                encase_stack += 1
-                if encase_stack > encase_full:
-                    encase_stack = 0
-                    is_encase_open = False
-        else:
-            if len(stack_open) != full:
-                stack_open.clear()
-            if len(stack_close) != full:
-                stack_close.clear()
+                if len(stack_open) != full:
+                    stack_open.clear()
+                if len(stack_close) != full:
+                    stack_close.clear()
 
     if len(stack_open) == full and len(stack_close) == full:
         return 2  # a quote comment is open and close
