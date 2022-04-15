@@ -288,3 +288,33 @@ def count_standalone_paren(filepath):
             is_standalone = False
 
     return num_standalone
+
+
+def main():
+    # input file's path
+    filepath = "sample/sample.py"
+    # count number of lines if file
+    num_all_code_lines = count_lines_of_code(filepath)
+    # count number of blanks in file
+    num_blank = count_blank(filepath)
+    # count number of comment lines
+    num_comment, num_only_comment = count_comment(filepath)
+    # count standalone parenthesis
+    num_standalone = count_standalone_paren(filepath)
+    # number of lines without blanks (LOC)
+    num_code_lines = num_all_code_lines - num_blank - num_only_comment
+    # number of effective lines (eLOC)
+    effective = num_all_code_lines - num_blank - num_only_comment - num_standalone
+    # count number of function
+    num_function = count_function(filepath)
+    # count_function2(filepath)
+
+    print(f"LOC: {num_code_lines}")
+    print(f"eLOC: {effective}")
+    print(f"Comment: {num_comment}")
+    print(f"Blank: {num_blank}")
+    print(f"No. of Functions: {num_function}")
+
+
+if __name__ == "__main__":
+    main()
