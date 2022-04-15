@@ -96,15 +96,22 @@ def check_three_quotes(aline, quote, quote_open):
         return -1
 
     compare_quote = ''
+    encase_quote = ''
 
     if quote == '"':
         compare_quote = '"'
+        encase_quote = "'"
     elif quote == "'":
         compare_quote = "'"
+        encase_quote = '"'
 
     stack_open = []
     stack_close = []
     full = 3
+
+    is_encase_open = False
+    encase_stack = 0
+    encase_full = 2
 
     for item in stripped_line:
         if item == '#' and not quote_open:
@@ -121,6 +128,17 @@ def check_three_quotes(aline, quote, quote_open):
                 stack_close.append(item)
             else:
                 continue
+        elif item == encase_quote:
+            # if quotes are in the other quotes
+            # Example: '"""' or "'''"
+            if not is_encase_open:
+                encase_stack += 1
+                is_encase_open = True
+            elif is_encase_open:
+                encase_stack += 1
+                if encase_stack > encase_full:
+                    encase_stack = 0
+                    is_encase_open = False
         else:
             if len(stack_open) != full:
                 stack_open.clear()
