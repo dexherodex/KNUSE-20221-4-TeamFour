@@ -177,18 +177,7 @@ def check_three_quotes(stripped_line, quote, quote_open):
             return 0
 
         # when quote is in parentheses
-        if item == '(' and stack_open != full:
-            paren_is_open[0] = True
-        elif item == ')':
-            paren_is_open[0] = False
-        elif item == '{' and stack_open != full:
-            paren_is_open[1] = True
-        elif item == '}':
-            paren_is_open[1] = False
-        elif item == '[' and stack_open != full:
-            paren_is_open[2] = True
-        elif item == ']':
-            paren_is_open[2] = False
+        paren_is_open = check_paren(stripped_line, paren_is_open, quote_open)
 
         if not paren_is_open[0] and not paren_is_open[1] and not paren_is_open[2]:
             if item == compare_quote:
@@ -239,3 +228,24 @@ def count_function(filepath):
             num_func += 1
 
     return num_func
+
+
+def check_paren(stripped_line, paren_is_open, quote_is_open):
+    """ Check whether parentheses are open or close """
+    for item in stripped_line:
+        if item == '(' and not paren_is_open[0] and not quote_is_open:
+            paren_is_open[0] = True
+        elif item == ')' and paren_is_open[0]:
+            paren_is_open[0] = False
+        elif item == '{' and not paren_is_open[1] and not quote_is_open:
+            paren_is_open[1] = True
+        elif item == '}' and paren_is_open[1]:
+            paren_is_open[1] = False
+        elif item == '[' and not paren_is_open[2] and not quote_is_open:
+            paren_is_open[2] = True
+        elif item == ']' and paren_is_open[2]:
+            paren_is_open[2] = False
+        else:
+            continue
+
+    return paren_is_open
