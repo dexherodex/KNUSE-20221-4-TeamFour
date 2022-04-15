@@ -31,8 +31,29 @@ def count_blank(filepath):
 def count_comment(filepath):
     """ Count number of comments in file """
     num_comment = 0
+    quote_is_open = False  # Variable of whether single quote is open
+    double_quote_is_open = False  # Variable of whether double quote is open
     lines = read_lines(filepath)
-    # num_comment = hash(#) comment + quote(""") comment
+
+    for aline in lines:
+        stripped_line = list(aline.strip())
+        value, quote_is_open, double_quote_is_open \
+            = count_three_quotes(stripped_line, quote_is_open, double_quote_is_open)
+
+        if value > 0:
+            # if quote comment is open at current line
+            num_comment += value
+        elif value <= 0 and not quote_is_open and not double_quote_is_open:
+            # if quote comment is not open then check hash(#) comment
+            value = count_hash(stripped_line)
+            if value == 1:
+                num_comment += 1
+            elif value == 2:
+                num_comment += 1
+            else:
+                continue
+
+    return num_comment
 
 
 def count_hash(stripped_line):
@@ -42,13 +63,13 @@ def count_hash(stripped_line):
 
     if '#' in stripped_line:
         if first == ['#']:
-            num_hash = 0
+            num_hash = 1
         elif hash_in_string(stripped_line, '"'):
             num_hash = 0
         elif hash_in_string(stripped_line, "'"):
             num_hash = 0
         else:
-            num_hash = 1
+            num_hash = 2
 
     return num_hash
 
