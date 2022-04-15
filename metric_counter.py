@@ -43,6 +43,10 @@ def count_hash(stripped_line):
     if '#' in stripped_line:
         if first == ['#']:
             num_hash = 0
+        elif hash_in_string(stripped_line, '"'):
+            num_hash = 0
+        elif hash_in_string(stripped_line, "'"):
+            num_hash = 0
         else:
             num_hash = 1
 
