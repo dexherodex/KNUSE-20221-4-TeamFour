@@ -88,7 +88,7 @@ def hash_in_string(stripped_line, quote):
     return hash_in_str
 
 
-def check_three_quotes(aline, quote):
+def check_three_quotes(aline, quote, quote_open):
     """ Check whether three quote comment is exist """
     stripped_line = list(aline.strip())
 
@@ -107,6 +107,13 @@ def check_three_quotes(aline, quote):
     full = 3
 
     for item in stripped_line:
+        if item == '#' and not quote_open:
+            # when quotes are in hash(#) comment
+            return 0
+        if item == '=' and not quote_open:
+            # when quotes assign to some variable
+            return 0
+
         if item == compare_quote:
             if len(stack_open) < full and len(stack_close) < full:
                 stack_open.append(item)
