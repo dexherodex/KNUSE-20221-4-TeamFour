@@ -190,7 +190,7 @@ def check_three_quotes(stripped_line, quote, quote_open):
             return 0
 
         # when quote is in parentheses
-        paren_is_open = check_paren(stripped_line, paren_is_open, quote_open. quote_open)
+        paren_is_open = check_paren(stripped_line, paren_is_open, quote_open, quote_open)
 
         if not paren_is_open[0] and not paren_is_open[1] and not paren_is_open[2]:
             if item == compare_quote:
