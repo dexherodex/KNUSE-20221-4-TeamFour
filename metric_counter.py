@@ -88,6 +88,46 @@ def hash_in_string(stripped_line, quote):
     return hash_in_str
 
 
+def check_three_quotes(aline, quote):
+    """ Check whether three quote comment is exist """
+    stripped_line = list(aline.strip())
+
+    if not stripped_line:
+        return -1
+
+    compare_quote = ''
+
+    if quote == '"':
+        compare_quote = '"'
+    elif quote == "'":
+        compare_quote = "'"
+
+    stack_open = []
+    stack_close = []
+    full = 3
+
+    for item in stripped_line:
+        if item == compare_quote:
+            if len(stack_open) < full and len(stack_close) < full:
+                stack_open.append(item)
+            elif len(stack_open) == full:
+                stack_close.append(item)
+            else:
+                continue
+        else:
+            if len(stack_open) != full:
+                stack_open.clear()
+            if len(stack_close) != full:
+                stack_close.clear()
+
+    if len(stack_open) == full and len(stack_close) == full:
+        return 2  # a quote comment is open and close
+    elif len(stack_open) == full:
+        return 1  # a quote comment is just open or close
+    else:
+        return 0
+
+
 def parse_file(filepath):
     """ Parsing file to AST """
     with open(filepath, "r") as f:
