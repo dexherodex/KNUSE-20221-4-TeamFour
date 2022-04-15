@@ -33,25 +33,35 @@ def count_comment(filepath):
     num_comment = 0
     quote_is_open = False  # Variable of whether single quote is open
     double_quote_is_open = False  # Variable of whether double quote is open
+    paren_is_open = [False, False, False]  # List of whether parenthesis is open (0: (), 1: {}, 2: [])
     lines = read_lines(filepath)
 
     for aline in lines:
         stripped_line = list(aline.strip())
-        value, quote_is_open, double_quote_is_open \
-            = count_three_quotes(stripped_line, quote_is_open, double_quote_is_open)
+        paren_is_open = check_paren(stripped_line, paren_is_open, quote_is_open, double_quote_is_open)
 
-        if value > 0:
-            # if quote comment is open at current line
-            num_comment += value
-        elif value <= 0 and not quote_is_open and not double_quote_is_open:
-            # if quote comment is not open then check hash(#) comment
-            value = count_hash(stripped_line)
-            if value == 1:
-                num_comment += 1
-            elif value == 2:
-                num_comment += 1
-            else:
-                continue
+        if not paren_is_open[0] and not paren_is_open[1] and not paren_is_open[2]:
+            # when code with parentheses is closed, check about quote comment
+            value, quote_is_open, double_quote_is_open \
+                = count_three_quotes(stripped_line, quote_is_open, double_quote_is_open)
+
+            if value > 0:
+                # if quote comment is open at current line
+                if not stripped_line[len(stripped_line) - 1] in [')', '}', ']']:
+                    num_comment += value
+                else:
+                    quote_is_open = False
+                    double_quote_is_open = False
+
+            elif value <= 0 and not quote_is_open and not double_quote_is_open:
+                # if quote comment is not open then check hash(#) comment
+                value = count_hash(stripped_line)
+                if value == 1:
+                    num_comment += 1
+                elif value == 2:
+                    num_comment += 1
+                else:
+                    continue
 
     return num_comment
 
@@ -166,7 +176,7 @@ def check_three_quotes(stripped_line, quote, quote_open):
     encase_stack = 0
     encase_full = 2
 
-    paren_is_open = [False, False, False]
+    paren_is_open = [False, False, False]  # List of whether parenthesis is open (0: (), 1: {}, 2: [])
 
     for item in stripped_line:
         if item == '#' and not quote_open:
@@ -177,7 +187,7 @@ def check_three_quotes(stripped_line, quote, quote_open):
             return 0
 
         # when quote is in parentheses
-        paren_is_open = check_paren(stripped_line, paren_is_open, quote_open)
+        paren_is_open = check_paren(stripped_line, paren_is_open, quote_open. quote_open)
 
         if not paren_is_open[0] and not paren_is_open[1] and not paren_is_open[2]:
             if item == compare_quote:
@@ -230,18 +240,18 @@ def count_function(filepath):
     return num_func
 
 
-def check_paren(stripped_line, paren_is_open, quote_is_open):
+def check_paren(stripped_line, paren_is_open, quote_is_open, double_quote_is_open):
     """ Check whether parentheses are open or close """
     for item in stripped_line:
-        if item == '(' and not paren_is_open[0] and not quote_is_open:
+        if item == '(' and not paren_is_open[0] and not quote_is_open and not double_quote_is_open:
             paren_is_open[0] = True
         elif item == ')' and paren_is_open[0]:
             paren_is_open[0] = False
-        elif item == '{' and not paren_is_open[1] and not quote_is_open:
+        elif item == '{' and not paren_is_open[1] and not quote_is_open and not double_quote_is_open:
             paren_is_open[1] = True
         elif item == '}' and paren_is_open[1]:
             paren_is_open[1] = False
-        elif item == '[' and not paren_is_open[2] and not quote_is_open:
+        elif item == '[' and not paren_is_open[2] and not quote_is_open and not double_quote_is_open:
             paren_is_open[2] = True
         elif item == ']' and paren_is_open[2]:
             paren_is_open[2] = False
