@@ -31,6 +31,7 @@ def count_blank(filepath):
 def count_comment(filepath):
     """ Count number of comments in file """
     num_comment = 0
+    num_comment_only = 0
     quote_is_open = False  # Variable of whether single quote is open
     double_quote_is_open = False  # Variable of whether double quote is open
     paren_is_open = [False, False, False]  # List of whether parenthesis is open (0: (), 1: {}, 2: [])
@@ -49,6 +50,7 @@ def count_comment(filepath):
                 # if quote comment is open at current line
                 if not stripped_line[len(stripped_line) - 1] in [')', '}', ']']:
                     num_comment += value
+                    num_comment_only += value
                 else:
                     quote_is_open = False
                     double_quote_is_open = False
@@ -58,12 +60,13 @@ def count_comment(filepath):
                 value = count_hash(stripped_line)
                 if value == 1:
                     num_comment += 1
+                    num_comment_only += value
                 elif value == 2:
                     num_comment += 1
                 else:
                     continue
 
-    return num_comment
+    return num_comment, num_comment_only
 
 
 def count_hash(stripped_line):
