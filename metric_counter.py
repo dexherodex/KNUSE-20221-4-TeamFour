@@ -124,10 +124,8 @@ def count_three_quotes(stripped_line, quote_is_open, double_quote_is_open):
     return num_quotes, quote_is_open, double_quote_is_open
 
 
-def check_three_quotes(aline, quote, quote_open):
+def check_three_quotes(stripped_line, quote, quote_open):
     """ Check whether three quote comment is exist """
-    stripped_line = list(aline.strip())
-
     if not stripped_line:
         return -1
 
