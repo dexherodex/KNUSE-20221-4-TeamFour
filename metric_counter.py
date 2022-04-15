@@ -30,6 +30,23 @@ def count_blank(filepath):
 
 def count_comment(filepath):
     """ Count number of comments in file """
+    num_comment = 0
+    lines = read_lines(filepath)
+    # num_comment = hash(#) comment + quote(""") comment
+
+
+def count_hash(stripped_line):
+    """ Count number of hash(#) comment """
+    num_hash = 0
+    first = stripped_line[:1]
+
+    if '#' in stripped_line:
+        if first == ['#']:
+            num_hash = 0
+        else:
+            num_hash = 1
+
+    return num_hash
 
 
 def parse_file(filepath):
