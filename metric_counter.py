@@ -57,6 +57,7 @@ def hash_in_string(stripped_line, quote):
     """ Check whether hash(#) is in string """
     quote_is_open = False
     hash_in_str = False
+    quote_can_in_str = False
 
     compare_quote = ""
     if quote == '"':
@@ -65,6 +66,13 @@ def hash_in_string(stripped_line, quote):
         compare_quote = "'"
 
     for item in stripped_line:
+        if item == '\\' and quote_is_open and not quote_can_in_str:
+            quote_can_in_str = True
+            continue
+        elif quote_is_open and quote_can_in_str:
+            quote_can_in_str = False
+            continue
+
         if item == compare_quote:
             if not quote_is_open:
                 quote_is_open = True
