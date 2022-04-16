@@ -302,10 +302,13 @@ def count_standalone_paren(filepath):
 def main():
     if len(sys.argv) < 3:
         print(f"Usage: <{sys.argv[0]}> <in.file> <out.file>\n")
-        exit(0)
+        exit(1)
 
     # input file's path
     infile = sys.argv[1]
+    if infile[-3:] != ".py":
+        print("\"in.file\" must be written by python language.")
+        exit(1)
 
     # count number of lines if file
     num_all_code_lines = count_lines_of_code(infile)
