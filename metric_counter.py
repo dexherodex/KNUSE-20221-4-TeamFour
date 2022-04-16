@@ -318,13 +318,13 @@ def main():
     num_comment, num_only_comment = count_comment(infile)
     # count standalone parenthesis
     num_standalone = count_standalone_paren(infile)
+    # count number of function
+    num_function = count_function(infile)
+
     # number of lines without blanks (LOC)
     num_code_lines = num_all_code_lines - num_blank - num_only_comment
     # number of effective lines (eLOC)
     effective = num_all_code_lines - num_blank - num_only_comment - num_standalone
-    # count number of function
-    num_function = count_function(infile)
-    # count_function2(filepath)
 
     outfile = open(sys.argv[2], "w")
 
