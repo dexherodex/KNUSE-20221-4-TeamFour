@@ -3,6 +3,10 @@ KNU SE-20221 LOC Metrics Counter
 
 How To Run Program
 ---------------------
+* ### Environment
+  + #### Linux Terminal
+  + #### Mac OS Terminal
+  + #### Windows Terminal with ***bash*** (you need to install ***Window Subsystem for Linux***)
 * ### Clone
     #### 1. Use the ***cd*** to move into the directory where you want to save the clone. For example:
       $ cd YourDirectoryForClone
