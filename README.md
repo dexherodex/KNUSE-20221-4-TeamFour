@@ -9,14 +9,14 @@ How To Run Program
          #### or
           $ python3 --version
    2. #### If python version lower than 3, then install ***python3***.
-  + #### Linux Terminal
+  + #### Linux
      + #### On Debian derivatives such as Ubuntu, use apt.
            $ sudo apt-get install python3
      + #### On Red Hat and derivatives, use yum.
            $ sudo yum install python3
      + #### On SUSE and derivatives, use zypper.
            $ sudo zypper install python3
-  + #### Mac OS Terminal
+  + #### Mac OS
      #### Download link: https://www.python.org/downloads/macos/
   + #### Windows
      #### Download link: https://www.python.org/downloads/windows/
