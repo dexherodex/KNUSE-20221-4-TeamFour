@@ -69,6 +69,16 @@ def count_comment(filepath):
                 else:
                     continue
 
+        elif not quote_is_open and not double_quote_is_open:
+            value = count_hash(stripped_line)
+            if value == 1:
+                num_comment += 1
+                num_comment_only += value
+            elif value == 2:
+                num_comment += 1
+            else:
+                continue
+
     return num_comment, num_comment_only
 
 
