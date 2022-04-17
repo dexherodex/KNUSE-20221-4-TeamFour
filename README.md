@@ -1,5 +1,5 @@
-KNU SE-20221 LOC Metrics Counter
-==================================
+KNU SE-20221 Team Four: LOC Metrics Counter
+============================================
 
 How To Run Program
 ---------------------
