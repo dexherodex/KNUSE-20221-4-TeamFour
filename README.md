@@ -34,7 +34,7 @@ How To Run Program
            $ chmod 755 ./metric_counter.sh
     3. #### Run the program with ***in.file*** and ***out.file***. For example:
            $ ./metric_counter.sh in.file out.file
-       #### (The ***in.file*** must be written by ***python***) 
+       (The ***in.file*** must be written by ***python***) 
 
 Language
 --------
