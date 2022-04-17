@@ -4,7 +4,7 @@ import sys
 
 def read_lines(filepath):
     """ file to lines """
-    with open(filepath, "r") as f:
+    with open(filepath, "r", encoding="UTF-8") as f:
         lines = f.readlines()
 
     f.close()
@@ -230,7 +230,7 @@ def check_three_quotes(stripped_line, quote, quote_open):
 
 def parse_file(filepath):
     """ Parsing file to AST """
-    with open(filepath, "r") as f:
+    with open(filepath, "r", encoding="UTF-8") as f:
         ptree = ast.parse(f.read(), filename=filepath)
 
     f.close()
@@ -276,7 +276,7 @@ def count_standalone_paren(filepath):
     num_standalone = 0
     is_standalone = False
 
-    with open(filepath, "r") as f:
+    with open(filepath, "r", encoding="UTF-8") as f:
         lines = f.readlines()
 
     for aline in lines:
@@ -326,7 +326,7 @@ def main():
     # number of effective lines (eLOC)
     effective = num_all_code_lines - num_blank - num_only_comment - num_standalone
 
-    outfile = open(sys.argv[2], "w")
+    outfile = open(sys.argv[2], "w", encoding="UTF-8")
 
     loc = "LOC: %d\n" % num_code_lines
     eloc = "eLOC: %d\n" % effective
