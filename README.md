@@ -57,7 +57,7 @@ How To Run Program
           ```
     3. Run the program with ***in.file*** and ***out.file***. (The ***in.file*** must be written by ***python***.) For example:
           ```bash
-          ./metric_counter.sh in.file out.file
+          ./metric_counter.sh in.py out.file
           ```
 ---
 Language
