@@ -32,9 +32,8 @@ How To Run Program
            $ cd ClonedDirectory
     2. #### Enter the ***chmod*** command to change the permission of ***metric_counter.sh***.
            $ chmod 755 ./metric_counter.sh
-    3. #### Run the program with ***in.file*** and ***out.file***. For example:
+    3. #### Run the program with ***in.file*** and ***out.file***. (The ***in.file*** must be written by ***python***.) For example:
            $ ./metric_counter.sh in.file out.file
-       (The ***in.file*** must be written by ***python***) 
 
 Language
 --------
