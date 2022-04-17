@@ -39,3 +39,8 @@ Language
 --------
 + #### Implementation Language: Python
 + #### Target Language:   Python
+
+
+About Sample "***in.py***"
+--------------------
++ #### The ***in.py*** file is a clone of https://github.com/kakao/khaiii/blob/master/src/main/python/khaiii/khaiii.py
