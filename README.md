@@ -49,7 +49,7 @@ How To Run Program
      (***Windows*** needs to install ***Windows Subsystem for Linux*** for running ***Shell Script*** file.)
     1. Use the ***cd*** to move into the cloned directory. For example:
           ```bash
-          cd KNUSE-20221-6
+          cd KNUSE-20221-4-TeamFour
           ```
     2. Enter the ***chmod*** command to change the permission of ***metric_counter.sh***.
           ```bash
