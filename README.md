@@ -42,7 +42,7 @@ How To Run Program
          ```
     2. Enter the ***git clone URL*** command.
           ```bash
-          git clone https://github.com/dexherodex/KNUSE-20221-6.git
+          git clone https://github.com/dexherodex/KNUSE-20221-4-TeamFour.git
           ```
 ---
 * ### Execute Program
