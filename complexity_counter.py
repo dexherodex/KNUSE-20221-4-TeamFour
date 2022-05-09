@@ -68,11 +68,12 @@ def global_assign_number(item_assign, global_list):
             count += 1
     elif isinstance(variables, ast.Tuple):
         for item in variables.elts:
-            if item.id in global_list:
-                count += 1
-
+            if isinstance(item, ast.Name):
+                if item.id in global_list:
+                    count += 1
     elif isinstance(variables, ast.Subscript):
-        if variables.value.id in global_list:
-            count += 1
+        if isinstance(variables.value, ast.Name):
+            if variables.value.id in global_list:
+                count += 1
 
     return count
