@@ -9,3 +9,11 @@ def parse_file(filepath):
     return ptree
 
 
+def cyclomatic(branch):
+    cyclomatic_complexity = branch + 1
+    return cyclomatic_complexity
+
+
+def ifc(fan_in, fan_out):
+    ifc_complexity = (fan_in * fan_out) ** 2
+    return ifc_complexity
