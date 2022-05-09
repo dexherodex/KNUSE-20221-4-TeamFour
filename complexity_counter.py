@@ -35,7 +35,7 @@ def analyser(function_item, branch, fan_in, fan_out):
             fan_out += return_number(item_copy)
         elif isinstance(item_copy, (ast.Assign, ast.AugAssign, ast.AnnAssign)):
             if len(global_list) > 0:
-                fan_out += global_assign(item_copy, global_list)
+                fan_out += global_assign_number(item_copy, global_list)
 
     return branch, fan_in, fan_out
 
@@ -60,7 +60,7 @@ def global_number(item_global):
     return item_global.names
 
 
-def global_assign(item_assign, global_list):
+def global_assign_number(item_assign, global_list):
     count = 0
     variables = item_assign.targets[0]
     if isinstance(variables, ast.Name):
