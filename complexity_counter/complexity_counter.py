@@ -33,7 +33,8 @@ def analyser(function_item):
         if isinstance(item_copy, (ast.While, ast.For, ast.If, ast.Assert, ast.Try)):
             branch += 1
         arg = arguments_number(item_copy, arg)  # in
-        ret = return_number(item_copy, ret)  # out
+        if ret == 0:
+            ret = return_number(item_copy, ret)  # out
         new_list, global_in = global_input(item_copy, global_in)  # in
         global_list.extend(new_list)
         global_out = global_output(item_copy, global_list, global_out)  # out
@@ -53,9 +54,11 @@ def arguments_number(item_arguments, fan_in):
 
 def return_number(item_return, fan_out):
     copy_ret = item_return
+    index = 0
     if isinstance(copy_ret, ast.Return):
         for item in ast.walk(item_return):
             copy = item
+            index += 1
             if isinstance(copy, ast.Return):
                 continue
             elif isinstance(copy, ast.Tuple):
@@ -63,7 +66,8 @@ def return_number(item_return, fan_out):
                 return fan_out
             else:
                 break
-        fan_out += 1
+        if index > 1:
+            fan_out += 1
 
     return fan_out
 
