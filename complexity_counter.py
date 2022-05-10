@@ -23,7 +23,7 @@ def analyser(function_item, branch, fan_in, fan_out):
     global_list = []
     for item in ast.walk(function_item):
         item_copy = item
-        if isinstance(item_copy, (ast.While, ast.For, ast.If)):
+        if isinstance(item_copy, (ast.While, ast.For, ast.If, ast.Assert, ast.Try)):
             branch += 1
         fan_in = arguments_number(item_copy, fan_in)
         fan_out = return_number(item_copy, fan_out)
@@ -104,32 +104,57 @@ def instance_variable_assign_number(item_assign, fan_out):
             variables = item_assign.target
 
         if isinstance(variables, ast.Attribute):
-            if isinstance(variables.value, ast.Name):
-                if variables.value.id == 'self':
-                    count += 1
+            count += find_self(variables)
         elif isinstance(variables, ast.Tuple):
             for variable in variables.elts:
-                if isinstance(variable, ast.Attribute):
-                    if isinstance(variable.value, ast.Name):
-                        if variable.value.id == 'self':
-                            count += 1
+                count += find_self(variable)
         fan_out += count
 
     return fan_out
 
 
+def find_self(variable):
+    item = variable
+    while not isinstance(item, ast.Name):
+        if isinstance(item, ast.Attribute):
+            item = item.value
+
+    if item.id == 'self':
+        return 1
+
+    return 0
+
+
+def file_write(outfile, name, cyclomatic_number, ifc_number):
+    outfile.write(name + ":\n")
+    outfile.write("   - cyclomatic: %d\n" % cyclomatic_number)
+    outfile.write("   - ifc: %d\n" % ifc_number)
+
+
 def main():
-    ptree = parse_file('in.py')
+    if len(sys.argv) < 3:
+        print(f"Usage: <{sys.argv[0]}> <in.file> <out.file>\n")
+        exit(1)
+
+    infile = sys.argv[1]
+    outfile = open(sys.argv[2], "w", encoding="UTF-8")
+
+    if infile[-3:] != '.py':
+        print("\"in.file\" must be written by python language.")
+        exit(1)
+
+    ptree = parse_file(infile)
+    print(ast.dump(ptree, indent=4))
     for item in ast.walk(ptree):
         copy = item
         if isinstance(copy, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            # print(ast.dump(item, indent=4))
-            print(copy.name)
             branch = 0
             fan_out = 0
             fan_in = 0
             branch, fan_in, fan_out = analyser(item, branch, fan_in, fan_out)
-            print(f"branch: {branch}, fan in: {fan_in}, fan out: {fan_out}\n")
+            cyclomatic_number = cyclomatic(branch)
+            ifc_number = ifc(fan_in, fan_out)
+            file_write(outfile, copy.name, cyclomatic_number, ifc_number)
 
 
 if __name__ == "__main__":
