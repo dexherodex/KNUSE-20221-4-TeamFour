@@ -30,6 +30,7 @@ def analyser(function_item, branch, fan_in, fan_out):
         new_list, fan_in = global_input(item_copy, fan_in)
         global_list.extend(new_list)
         fan_out = global_output(item_copy, global_list, fan_out)
+        fan_out = instance_variable_assign_number(item_copy, fan_out)
 
     return branch, fan_in, fan_out
 
@@ -92,3 +93,44 @@ def global_output(item_assign, global_list, fan_out):
             fan_out += count
 
     return fan_out
+
+
+def instance_variable_assign_number(item_assign, fan_out):
+    if isinstance(item_assign, (ast.Assign, ast.AugAssign, ast.AnnAssign)):
+        count = 0
+        if isinstance(item_assign, ast.Assign):
+            variables = item_assign.targets[0]
+        else:
+            variables = item_assign.target
+
+        if isinstance(variables, ast.Attribute):
+            if isinstance(variables.value, ast.Name):
+                if variables.value.id == 'self':
+                    count += 1
+        elif isinstance(variables, ast.Tuple):
+            for variable in variables.elts:
+                if isinstance(variable, ast.Attribute):
+                    if isinstance(variable.value, ast.Name):
+                        if variable.value.id == 'self':
+                            count += 1
+        fan_out += count
+
+    return fan_out
+
+
+def main():
+    ptree = parse_file('in.py')
+    for item in ast.walk(ptree):
+        copy = item
+        if isinstance(copy, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            # print(ast.dump(item, indent=4))
+            print(copy.name)
+            branch = 0
+            fan_out = 0
+            fan_in = 0
+            branch, fan_in, fan_out = analyser(item, branch, fan_in, fan_out)
+            print(f"branch: {branch}, fan in: {fan_in}, fan out: {fan_out}\n")
+
+
+if __name__ == "__main__":
+    main()
