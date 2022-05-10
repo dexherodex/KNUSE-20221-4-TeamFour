@@ -19,18 +19,28 @@ def ifc(fan_in, fan_out):
     return ifc_complexity
 
 
-def analyser(function_item, branch, fan_in, fan_out):
+def analyser(function_item):
+    branch = 0
+    arg = 0
+    ret = 0
+    global_in = 0
+    global_out = 0
+    instance_assign = 0
     global_list = []
+
     for item in ast.walk(function_item):
         item_copy = item
         if isinstance(item_copy, (ast.While, ast.For, ast.If, ast.Assert, ast.Try)):
             branch += 1
-        fan_in = arguments_number(item_copy, fan_in)
-        fan_out = return_number(item_copy, fan_out)
-        new_list, fan_in = global_input(item_copy, fan_in)
+        arg = arguments_number(item_copy, arg)  # in
+        ret = return_number(item_copy, ret)  # out
+        new_list, global_in = global_input(item_copy, global_in)  # in
         global_list.extend(new_list)
-        fan_out = global_output(item_copy, global_list, fan_out)
-        fan_out = instance_variable_assign_number(item_copy, fan_out)
+        global_out = global_output(item_copy, global_list, global_out)  # out
+        instance_assign = instance_variable_assign_number(item_copy, instance_assign)  # out
+
+    fan_in = arg + global_in
+    fan_out = ret + global_out + instance_assign
 
     return branch, fan_in, fan_out
 
@@ -148,10 +158,7 @@ def main():
     for item in ast.walk(ptree):
         copy = item
         if isinstance(copy, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            branch = 0
-            fan_out = 0
-            fan_in = 0
-            branch, fan_in, fan_out = analyser(item, branch, fan_in, fan_out)
+            branch, fan_in, fan_out = analyser(item)
             cyclomatic_number = cyclomatic(branch)
             ifc_number = ifc(fan_in, fan_out)
             file_write(outfile, copy.name, cyclomatic_number, ifc_number)
