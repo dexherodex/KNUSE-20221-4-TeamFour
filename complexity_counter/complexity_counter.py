@@ -158,7 +158,6 @@ def main():
         exit(1)
 
     ptree = parse_file(infile)
-    print(ast.dump(ptree, indent=4))
     for item in ast.walk(ptree):
         copy = item
         if isinstance(copy, (ast.FunctionDef, ast.AsyncFunctionDef)):
