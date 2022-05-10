@@ -47,17 +47,32 @@ How To Run Program
 ---
 * ### Execute Program
      (***Windows*** needs to install ***Windows Subsystem for Linux*** for running ***Shell Script*** file.)
-    1. Use the ***cd*** to move into the cloned directory. For example:
+    * ## metric_counter.py
+    1. Use the ***cd*** to move into the cloned directory.
           ```bash
-          cd KNUSE-20221-4-TeamFour
+          cd KNUSE-20221-4-TeamFour/metric_counter
           ```
     2. Enter the ***chmod*** command to change the permission of ***metric_counter.sh***.
           ```bash
           chmod 755 ./metric_counter.sh
           ```
-    3. Run the program with ***in.file*** and ***out.file***. (The ***in.file*** must be written by ***python***.) For example:
+    3. Run the program with ***in.file*** and ***out.file***. (The ***in.file*** must be written by ***python***.)
           ```bash
           ./metric_counter.sh in.py out.file
+          ```
+    
+    * ## complexity_counter.py
+    1. Use the ***cd*** to move into the cloned directory.
+          ```bash
+          cd KNUSE-20221-4-TeamFour/complexity_counter
+          ```
+    2. Enter the ***chmod*** command to change the permission of ***metric_counter.sh***.
+          ```bash
+          chmod 755 ./complexity_counter.sh
+          ```
+    3. Run the program with ***in.file*** and ***out.file***. (The ***in.file*** must be written by ***python***.)
+          ```bash
+          ./complexity_counter.sh complexity.py out.file
           ```
 ---
 Language
