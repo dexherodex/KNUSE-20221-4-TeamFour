@@ -81,7 +81,8 @@ Language
 + Target Language:   Python
 ---
 
-About Sample "***in.py***"
+About Sample Files
 --------------------
-+ The ***in.py*** file is a clone of https://github.com/kakao/khaiii/blob/master/src/main/python/khaiii/khaiii.py
++ The ***in.py*** file in ***metric_counter***is a clone of https://github.com/kakao/khaiii/blob/master/src/main/python/khaiii/khaiii.py
++ The ***complexity.py*** file in ***complexity_counter*** is a clone of https://github.com/TheAlgorithms/Python/blob/master/data_structures/binary_tree/binary_search_tree.py
 ---
