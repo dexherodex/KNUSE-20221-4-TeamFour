@@ -72,7 +72,7 @@ How To Run Program
           ```
     3. Run the program with ***in.file*** and ***out.file***. (The ***in.file*** must be written by ***python***.)
           ```bash
-          ./complexity_counter.sh complexity.py out.file
+          ./complexity_counter.sh complexity.sample out.file
           ```
 ---
 Language
