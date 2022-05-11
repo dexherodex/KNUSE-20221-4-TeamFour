@@ -26,30 +26,40 @@ def analyser(function_item):
     global_in = 0
     global_out = 0
     instance_assign = 0
+    list_out = 0
     global_list = []
+    arg_list = []
 
     for item in ast.walk(function_item):
         item_copy = item
         if isinstance(item_copy, (ast.While, ast.For, ast.If, ast.Assert, ast.Try)):
             branch += 1
-        arg = arguments_number(item_copy, arg)  # in
-        if ret == 0:
-            ret = return_number(item_copy, ret)  # out
+        arg_list, arg = arguments_number(item_copy, arg_list, arg)  # in
+        ret = return_number(item_copy, ret)  # out
         new_list, global_in = global_input(item_copy, global_in)  # in
         global_list.extend(new_list)
         global_out = global_output(item_copy, global_list, global_out)  # out
-        instance_assign = instance_variable_assign_number(item_copy, instance_assign)  # out
+        instance_assign = instance_variable_assign_number(item_copy, arg_list, instance_assign)  # out
+        list_out = list_assign(item_copy, arg_list, list_out)  # out
 
     fan_in = arg + global_in
-    fan_out = ret + global_out + instance_assign
+    fan_out = ret + global_out + instance_assign + list_out
 
     return branch, fan_in, fan_out
 
 
-def arguments_number(item_arguments, fan_in):
+def arguments_number(item_arguments, arg_list: list, fan_in):
+    count = 0
     if isinstance(item_arguments, ast.arguments):
-        fan_in += len(item_arguments.args)
-    return fan_in
+        count += len(item_arguments.args)
+        args = item_arguments.args
+        if len(arg_list) <= 0:
+            for i in range(count):
+                if isinstance(args[i], ast.arg):
+                    arg_list.append(args[i].arg)
+
+    fan_in += count
+    return arg_list, fan_in
 
 
 def return_number(item_return, fan_out):
@@ -99,17 +109,12 @@ def global_output(item_assign, global_list, fan_out):
                     if isinstance(item, ast.Name):
                         if item.id in global_list:
                             count += 1
-            # list assign
-            elif isinstance(variables, ast.Subscript):
-                if isinstance(variables.value, ast.Name):
-                    if variables.value.id in global_list:
-                        count += 1
             fan_out += count
 
     return fan_out
 
 
-def instance_variable_assign_number(item_assign, fan_out):
+def instance_variable_assign_number(item_assign, arg_list, fan_out):
     if isinstance(item_assign, (ast.Assign, ast.AugAssign, ast.AnnAssign)):
         count = 0
         if isinstance(item_assign, ast.Assign):
@@ -118,25 +123,51 @@ def instance_variable_assign_number(item_assign, fan_out):
             variables = item_assign.target
 
         if isinstance(variables, ast.Attribute):
-            count += find_self(variables)
+            count += find_arg(variables, arg_list)
         elif isinstance(variables, ast.Tuple):
             for variable in variables.elts:
-                count += find_self(variable)
+                count += find_arg(variable, arg_list)
         fan_out += count
 
     return fan_out
 
 
-def find_self(variable):
+def find_arg(variable, arg_list):
     item = variable
     while not isinstance(item, ast.Name):
         if isinstance(item, ast.Attribute):
             item = item.value
 
-    if item.id == 'self':
+    if item.id in arg_list:
         return 1
 
     return 0
+
+
+def list_assign(item, arg_list, fan_out):
+    count = 0
+    if isinstance(item, ast.Assign):
+        target = item.targets[0]
+        if isinstance(target, ast.Subscript):
+            value = target.value
+            if isinstance(value, ast.Name):
+                if value.id in arg_list:
+                    count += 1
+    elif isinstance(item, ast.Expr):
+        value = item.value
+        if isinstance(value, ast.Call):
+            func = value.func
+            if isinstance(func, ast.Attribute):
+                attr = func.attr
+                func_value = func.value
+                if isinstance(func_value, ast.Name):
+                    if func_value.id in arg_list:
+                        if attr == 'append' or attr == 'extend':
+                            count += 1
+
+    fan_out += count
+
+    return fan_out
 
 
 def file_write(outfile, name, cyclomatic_number, ifc_number):
