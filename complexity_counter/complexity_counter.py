@@ -303,10 +303,6 @@ def main():
     infile = sys.argv[1]
     outfile = sys.argv[2]
 
-    if infile[-3:] != '.py':
-        print("\"in.file\" must be written by python language.")
-        exit(1)
-
     ptree = parse_file(infile)
     counter = Visitor()
     counter.visit(ptree)
