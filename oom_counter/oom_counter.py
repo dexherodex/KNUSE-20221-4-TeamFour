@@ -16,35 +16,34 @@ class Analyzer(ast.NodeVisitor):
 
         # 2nd visit
         self.__current_class = 0
-        self.connected_classes = []
-        self.connected_methods = []
-        self.__connection = []
-        self.__connecting_variables = []
+        self.using_class = []
+        self.using_field = []
+        self.__use = []
+        self.__using_variable = []
 
         # 3rd visit
         self.used_methods_number = []
 
     def report(self):
-        if self.step == 1:
-            print("1st visit")
-            print("Class Name")
-            print(self.class_names)
-            print("Variables")
-            pprint(self.variables_of_class)
-            print("Methods")
-            pprint(self.methods_in_class)
-            print()
-        if self.step == 2:
-            print("2nd visit")
-            print("Connected Class")
-            pprint(self.connected_classes)
-            print("Connected Function")
-            pprint(self.connected_methods)
-            print()
-        if self.step == 3:
-            print("3rd visit")
-            print("Used Method Number")
-            pprint(self.used_methods_number)
+        print("1st visit")
+        print("Class Name")
+        print(self.class_names)
+        print("Variables")
+        pprint(self.variables_of_class)
+        print("Methods")
+        pprint(self.methods_in_class)
+        print()
+
+        print("2nd visit")
+        print("Connected Class")
+        pprint(self.using_class)
+        print("Connected Function")
+        pprint(self.using_field)
+        print()
+
+        print("3rd visit")
+        print("Used Method Number")
+        pprint(self.used_methods_number)
 
     def visit_ClassDef(self, node: ast.ClassDef):
         if self.step == 1:
@@ -61,14 +60,14 @@ class Analyzer(ast.NodeVisitor):
             self.methods_in_class.append(self.__methods[:])
 
         if self.step == 2:
-            self.__connection.clear()
+            self.__use.clear()
             self.__current_class = self.class_names.index(node.name)
             self.__connecting_check_class(node)
-            self.connected_classes.append(self.__connection[:])
+            self.using_class.append(self.__use[:])
 
-            self.__connection.clear()
+            self.__use.clear()
             self.generic_visit(node)
-            self.connected_methods.append(self.__connection[:])
+            self.using_field.append(self.__use[:])
 
         if self.step == 3:
             pass
@@ -78,10 +77,9 @@ class Analyzer(ast.NodeVisitor):
             self.__methods.append(node.name)
 
         if self.step == 2:
-            if not node.name == '__init__':
-                self.__connecting_variables.clear()
-                self.__connecting_check_func(node)
-                self.__connection.append(self.__connecting_variables[:])
+            self.__using_variable.clear()
+            self.__connecting_check_func(node)
+            self.__use.append(self.__using_variable[:])
 
         if self.step == 3:
             method_list = self.__using_method_check(node)
@@ -131,16 +129,16 @@ class Analyzer(ast.NodeVisitor):
     def __connecting_check_class(self, node: ast.ClassDef):
         for item in ast.walk(node):
             if isinstance(item, ast.Name):
-                if (item.id in self.class_names) and not (item.id in self.__connection):
-                    self.__connection.append(item.id)
+                if (item.id in self.class_names) and not (item.id in self.__use):
+                    self.__use.append(item.id)
 
     def __connecting_check_func(self, node: ast.FunctionDef):
         for item in ast.walk(node):
             if isinstance(item, ast.Attribute):
                 if (item.attr in self.variables_of_class[self.__current_class]) \
-                        and not (item.attr in self.__connection) \
-                        and not (item.attr in self.__connecting_variables):
-                    self.__connecting_variables.append(item.attr)
+                        and not (item.attr in self.__use) \
+                        and not (item.attr in self.__using_variable):
+                    self.__using_variable.append(item.attr)
 
     # 3rd visit
     def __methods_list_init(self):
@@ -181,7 +179,6 @@ class Analyzer(ast.NodeVisitor):
                     if isinstance(item.value.func, ast.Attribute):
                         instance_id = ''
                         i = 0
-                        j = 0
                         if isinstance(item.value.func.value, ast.Name):
                             instance_id = item.value.func.value.id
                         for index in range(len(instance_list)):
@@ -216,9 +213,9 @@ class ComputeComplexity:
         ptree = self.parse_file(filepath)
         self.analyzer.visit(ptree)
         self.class_names.extend(self.analyzer.class_names[:])
-        self.analyzer.order = 2
+        self.analyzer.step = 2
         self.analyzer.visit(ptree)
-        self.analyzer.order = 3
+        self.analyzer.step = 3
         self.analyzer.visit(ptree)
 
     @staticmethod
@@ -237,10 +234,10 @@ class ComputeComplexity:
         cbo_value = 0
         if class_name in self.class_names:
             index = self.class_names.index(class_name)
-            connected_classes = self.analyzer.connected_classes
+            connected_classes = self.analyzer.using_class
             for i in range(len(connected_classes)):
                 if i != index:
-                    if class_name in connected_classes:
+                    if class_name in connected_classes[i]:
                         cbo_value += 1
             self.cbo_value.insert(index, cbo_value)
 
@@ -252,29 +249,49 @@ class ComputeComplexity:
             self.rfc_value.insert(index, rfc_value)
 
     def lcom(self, class_name):
-        lcom_value = 0
+        q = 0
+        p = 0
         if class_name in self.class_names:
             index = self.class_names.index(class_name)
+            all_combinations = list(combinations(self.analyzer.using_field[index], 2))
+            for aTuple in all_combinations:
+                combi_set = set(aTuple[0]) & set(aTuple[1])
+                if self.is_empty(combi_set):
+                    p += 1
+                else:
+                    q += 1
+            if p <= q:
+                self.lcom_value.insert(index, 0)
+            else:
+                self.lcom_value.insert(index, p - q)
 
+    @staticmethod
+    def is_empty(item):
+        return item == set()
+
+    def run(self):
+        for name in self.class_names:
+            self.wmc(name)
+            self.cbo(name)
+            self.rfc(name)
+            self.lcom(name)
+
+    def write(self, outfile):
+        self.run()
+        outfile = open(outfile, "w", encoding="UTF-8")
+        for name in self.class_names:
+            index = self.class_names.index(name)
+            outfile.write(name + ":\n")
+            outfile.write("   - wmc: %d\n" % self.wmc_value[index])
+            outfile.write("   - cbo: %d\n" % self.cbo_value[index])
+            outfile.write("   - rfc: %d\n" % self.rfc_value[index])
+            outfile.write("   - lcom: %d\n" % self.lcom_value[index])
 
 
 def main():
-    analyzer = Analyzer()
     filepath = "../test.py"
-    with open(filepath, "r", encoding="UTF-8") as f:
-        ptree = ast.parse(f.read(), filename=filepath)
-    f.close()
-
-    analyzer.visit(ptree)
-    analyzer.report()
-
-    analyzer.step = 2
-    analyzer.visit(ptree)
-    analyzer.report()
-
-    analyzer.step = 3
-    analyzer.visit(ptree)
-    analyzer.report()
+    counter = ComputeComplexity(filepath)
+    counter.write("out.file")
 
 
 if __name__ == "__main__":
