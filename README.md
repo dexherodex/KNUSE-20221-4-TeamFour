@@ -1,4 +1,4 @@
-KNU SE-20221 Team Four: LOC Metrics Counter
+KNU SE-20221 Team Four
 ============================================
 
 How To Run Program
@@ -66,13 +66,27 @@ How To Run Program
           ```bash
           cd KNUSE-20221-4-TeamFour/complexity_counter
           ```
-    2. Enter the ***chmod*** command to change the permission of ***metric_counter.sh***.
+    2. Enter the ***chmod*** command to change the permission of ***complexity_counter.sh***.
           ```bash
           chmod 755 ./complexity_counter.sh
           ```
     3. Run the program with ***in.file*** and ***out.file***. (The ***in.file*** must be written by ***python***.)
           ```bash
           ./complexity_counter.sh complexity.sample out.file
+          ```
+       
+    * ## oom_counter.py
+    1. Use the ***cd*** to move into the cloned directory.
+          ```bash
+          cd KNUSE-20221-4-TeamFour/oom_counter
+          ```
+    2. Enter the ***chmod*** command to change the permission of ***oom_counter.sh***.
+          ```bash
+          chmod 755 ./oom_counter.sh
+          ```
+    3. Run the program with ***in.file*** and ***out.file***. (The ***in.file*** must be written by ***python***.)
+          ```bash
+          ./oom_counter.sh oom.sample out.file
           ```
 ---
 Language
@@ -83,6 +97,10 @@ Language
 
 About Sample Files
 --------------------
-+ The ***in.py*** file in ***metric_counter*** is a clone of https://github.com/kakao/khaiii/blob/master/src/main/python/khaiii/khaiii.py
-+ The ***complexity.py*** file in ***complexity_counter*** is a clone of https://github.com/TheAlgorithms/Python/blob/master/data_structures/binary_tree/binary_search_tree.py
++ The ***in.py*** file in ***metric_counter*** is a clone of \
+https://github.com/kakao/khaiii/blob/918955f276c6cdddcc1a32e692618470cb571fa4/src/main/python/khaiii/khaiii.py
++ The ***complexity.sample*** file in ***complexity_counter*** is a clone of \
+https://github.com/TheAlgorithms/Python/blob/629848e3721d9354d25fad6cb4729e6afdbbf799/data_structures/binary_tree/binary_search_tree.py
++ The ***oom.sample*** file in ***oom_counter*** is a clone of \
+https://github.com/geekcomputers/Python/blob/f0af0c43340763724f139fa68aa1e5a9ffe458b4/BlackJack_game/blackjack_simulate.py
 ---
