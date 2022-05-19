@@ -1,93 +1,213 @@
 import ast
+import sys
 from pprint import pprint
 from itertools import combinations
 
 
 class Analyzer(ast.NodeVisitor):
+    """
+    Class for visit each node of abstract syntax tree.
+        - 1st visit: Save information of each class. (class name, method name, variable name, global variable name)
+        - 2nd visit: Save usage information of each class and class's method.
+    """
+    ##################
+    # Public Methods #
+    ##################
+
     def __init__(self):
-        self.step = 1
+        self.step = 1  # order of visit
+        self.__in_class = False
+        self.__in_function = False
 
         # 1st visit
         self.class_names = []
-        self.variables_of_class = []
-        self.methods_in_class = []
+        self.variables_in_class = {}
+        self.methods_in_class = {}
+        self.global_variables = []
         self.__variables = []
         self.__methods = []
 
         # 2nd visit
-        self.__current_class = 0
-        self.using_class = []
-        self.using_field = []
-        self.__use = []
-        self.__using_variable = []
-
-        # 3rd visit
-        self.used_methods_number = []
+        self.__current_class = ""
+        self.using_class = {}
+        self.using_method = {}
+        self.using_variable = {}
+        self.using_global_variable = {}
+        self.__using_classes = []
+        self.__using_methods = []
+        self.__using_variables = []
+        self.__use1 = []
+        self.__use2 = []
+        self.__use3 = []
 
     def report(self):
+        """
+        Report all public variables. \n
+        :return: Print out public instance variables
+        """
         print("1st visit")
         print("Class Name")
         print(self.class_names)
+        print()
+        print("Global Variables")
+        pprint(self.global_variables)
+        print()
         print("Variables")
-        pprint(self.variables_of_class)
+        pprint(self.variables_in_class)
+        print()
         print("Methods")
         pprint(self.methods_in_class)
-        print()
+        print('\n')
 
         print("2nd visit")
-        print("Connected Class")
+        print("Used Class")
         pprint(self.using_class)
-        print("Connected Function")
-        pprint(self.using_field)
         print()
-
-        print("3rd visit")
-        print("Used Method Number")
-        pprint(self.used_methods_number)
+        print("Used variable")
+        pprint(self.using_variable)
+        print()
+        print("Used Method")
+        pprint(self.using_method)
+        print()
+        print("Used Global variable")
+        pprint(self.using_global_variable)
+        print('\n')
 
     def visit_ClassDef(self, node: ast.ClassDef):
+        """
+        When visit ClassDef, save class' information. \n
+        step1: Get class_names, variable_in_class, methods_in_class \n
+        step2: Get using_class, using_variable, using_method \n
+        :param node: Node that is instance of ClassDef
+        :return: None
+        """
+        self.__in_class = True
+
         if self.step == 1:
             # clear temp lists
             self.__variables.clear()
             self.__methods.clear()
+
             # save class name
             self.class_names.append(node.name)
+
             # save variables
             self.__variable_check(node)
-            self.variables_of_class.append(self.__variables[:])
+            self.variables_in_class[node.name] = self.__variables[:]
+
             # save methods
             self.generic_visit(node)
-            self.methods_in_class.append(self.__methods[:])
+            self.methods_in_class[node.name] = self.__methods[:]
 
         if self.step == 2:
-            self.__use.clear()
-            self.__current_class = self.class_names.index(node.name)
-            self.__connecting_check_class(node)
-            self.using_class.append(self.__use[:])
+            # save the classes used by each class
+            self.__using_classes.clear()
+            self.__current_class = node.name
+            self.__check_class_use(node)
+            self.using_class[self.__current_class] = self.__using_classes[:]
 
-            self.__use.clear()
+            # save the global variables used by each class
+            self.__use3.clear()
+            self.__check_global_variable_use(node)
+            self.using_global_variable[self.__current_class] = self.__use3[:]
+
+            self.__use1.clear()
+            self.__use2.clear()
             self.generic_visit(node)
-            self.using_field.append(self.__use[:])
+            # save the variables used by each class's each method
+            self.using_variable[self.__current_class] = self.__use1[:]
+            # save the methods used by each class's local method
+            self.using_method[self.__current_class] = self.__use2[:]
 
-        if self.step == 3:
-            pass
+        self.__in_class = False
 
     def visit_FunctionDef(self, node: ast.FunctionDef):
+        """
+        When visit FunctionDef, save function's information. \n
+        step1: Get method's name \n
+        step2: Get using methods and variables \n
+        :param node: Node that is instance of FunctionDef
+        :return: None
+        """
+        self.__in_function = True
+
         if self.step == 1:
+            # save method's name
             self.__methods.append(node.name)
 
         if self.step == 2:
-            self.__using_variable.clear()
-            self.__connecting_check_func(node)
-            self.__use.append(self.__using_variable[:])
+            # save the instance or class variables used by method
+            self.__using_variables.clear()
+            self.__check_variable_use(node)
+            self.__use1.append(self.__using_variables[:])
 
-        if self.step == 3:
-            method_list = self.__using_method_check(node)
-            count_list = self.__count_using_methods(method_list)
-            self.used_methods_number = count_list[:]
+            # save the local methods used by method
+            self.__using_methods.clear()
+            self.__check_method_use(node)
+            self.__use2.append(self.__using_methods[:])
+
+        self.__in_function = False
+
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef):
+        """
+        When visit AsyncFunctionDef, save function's information. \n
+        step1: Get method's name \n
+        step2: Get using methods and variables \n
+        :param node: Node that is instance of FunctionDef
+        :return: None
+        """
+        self.__in_function = True
+
+        if self.step == 1:
+            # save method's name
+            self.__methods.append(node.name)
+
+        if self.step == 2:
+            # save the instance or class variables used by method
+            self.__using_variables.clear()
+            self.__check_variable_use(node)
+            self.__use1.append(self.__using_variables[:])
+
+            # save the local methods used by method
+            self.__using_methods.clear()
+            self.__check_method_use(node)
+            self.__use2.append(self.__using_methods[:])
+
+        self.__in_function = False
+
+    def visit_Assign(self, node: ast.Assign):
+        """
+        When visit Assign node, if node is outside of class or function, save variable's name. \n
+        This function is working when step is 1. \n
+        :param node: Assign node
+        :return: None
+        """
+        if self.__in_class is False and self.__in_function is False:
+            if self.step == 1:
+                self.__global_variable_check(node)
+
+    def visit_AnnAssign(self, node: ast.AnnAssign):
+        """
+        When visit AnnAssign node, if node is outside of class or function, save variable's name. \n
+        This function is working when step is 1. \n
+        :param node: AnnAssign node
+        :return: None
+        """
+        if self.__in_class is False and self.__in_function is False:
+            if self.step == 1:
+                self.__global_variable_check(node)
+
+    ###################
+    # Private Methods #
+    ###################
 
     # 1st visit
     def __variable_check(self, node: ast.ClassDef):
+        """
+        Check class' class variable and instance variable. \n
+        :param node: ClassDef node to check
+        :return: None
+        """
         for item in ast.walk(node):
             if isinstance(item, ast.Assign):
                 self.__class_variable_check(item)
@@ -96,7 +216,22 @@ class Analyzer(ast.NodeVisitor):
                     self.__instance_variable_check(item)
                 break
 
-    def __instance_variable_check(self, node: ast.FunctionDef):
+    def __class_variable_check(self, node: ast.Assign):
+        """
+        Check class' class variable. \n
+        :param node: Assign node to check variable's name
+        :return: None
+        """
+        for item in node.targets:
+            if isinstance(item, ast.Name):
+                self.__variables.append(item.id)
+
+    def __instance_variable_check(self, node: (ast.FunctionDef, ast.AsyncFunctionDef)):
+        """
+        Check class' instance variable. \n
+        :param node: FunctionDef node with name '__init__'
+        :return: None
+        """
         for item in node.body:
             if isinstance(item, ast.Assign):
                 for target in item.targets:
@@ -106,102 +241,101 @@ class Analyzer(ast.NodeVisitor):
                                 if not (target.attr in self.__variables):
                                     self.__variables.append(target.attr)
 
-    def __class_variable_check(self, node: ast.Assign):
-        for target in node.targets:
-            if isinstance(target, ast.Name):
-                self.__variables.append(target.id)
-            elif isinstance(target, ast.Tuple):
-                self.__variables.extend(self.__check_tuple(target))
-
-    def __check_tuple(self, item: ast.Tuple):
-        id_list = []
-        self.__check_tuple_rotate(item, id_list)
-        return id_list
-
-    def __check_tuple_rotate(self, item: ast.Tuple, ids):
-        for item_in_tuple in item.elts:
-            if isinstance(item_in_tuple, ast.Tuple):
-                self.__check_tuple_rotate(item_in_tuple, ids)
-            elif isinstance(item_in_tuple, ast.Name):
-                ids.append(item_in_tuple.id)
+    def __global_variable_check(self, node: (ast.Assign, ast.AnnAssign)):
+        """
+        Check global variables in target file. \n
+        :param node: Assign or AnnAssign node
+        :return: None, Save global variables name in list(global_variables)
+        """
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                for name in ast.walk(target):
+                    if isinstance(name, ast.Name):
+                        if not (name.id in self.global_variables):
+                            self.global_variables.append(name.id)
+        elif isinstance(node, ast.AnnAssign):
+            if isinstance(node.target, ast.Name):
+                if not (node.target.id in self.global_variables):
+                    self.global_variables.append(node.target.id)
 
     # 2nd visit
-    def __connecting_check_class(self, node: ast.ClassDef):
+    def __check_class_use(self, node: ast.ClassDef):
+        """
+        Check which classes used in this class. \n
+        :param node: ClassDef node to check
+        :return: None
+        """
+        base = []
+        for name in node.bases:
+            if isinstance(name, ast.Name):
+                base.append(name.id)
         for item in ast.walk(node):
             if isinstance(item, ast.Name):
-                if (item.id in self.class_names) and not (item.id in self.__use):
-                    self.__use.append(item.id)
+                if (item.id in self.class_names) and not (item.id in self.__using_classes):
+                    if not (item.id in base) and item.id != node.name:
+                        self.__using_classes.append(item.id)
 
-    def __connecting_check_func(self, node: ast.FunctionDef):
+    def __check_variable_use(self, node: (ast.FunctionDef, ast.AsyncFunctionDef)):
+        """
+        Check which variables used in this function. \n
+        :param node: FunctionDef node to check
+        :return: None
+        """
         for item in ast.walk(node):
             if isinstance(item, ast.Attribute):
-                if (item.attr in self.variables_of_class[self.__current_class]) \
-                        and not (item.attr in self.__use) \
-                        and not (item.attr in self.__using_variable):
-                    self.__using_variable.append(item.attr)
+                if (item.attr in self.variables_in_class[self.__current_class]) \
+                        and not (item.attr in self.__use1) \
+                        and not (item.attr in self.__using_variables):
+                    self.__using_variables.append(item.attr)
 
-    # 3rd visit
-    def __methods_list_init(self):
-        ret_list = []
-        for i in range(len(self.methods_in_class)):
-            ret_list.append([])
-            for j in range(len(self.methods_in_class[i])):
-                ret_list[i].append(0)
-        return ret_list
-
-    def __instance_list_init(self):
-        ret_list = []
-        for i in range(len(self.class_names)):
-            ret_list.append([])
-        return ret_list
-
-    def __using_method_check(self, node: (ast.FunctionDef or ast.AsyncFunctionDef)):
-        method_list = self.__methods_list_init()
-        instance_list = self.__instance_list_init()
-
+    def __check_method_use(self, node: (ast.FunctionDef, ast.AsyncFunctionDef)):
+        """
+        Check which methods used in this function. \n
+        :param node: FunctionDef node to check
+        :return: None
+        """
         for item in ast.walk(node):
-            if isinstance(item, ast.Assign):
-                instance_id = ''
-                for target in item.targets:
-                    if isinstance(target, ast.Name):
-                        instance_id = target.id
-                if isinstance(item.value, ast.Call):
-                    if isinstance(item.value.func, ast.Name):
-                        class_id = item.value.func.id
-                        if class_id in self.class_names:
-                            index = self.class_names.index(class_id)
-                            instance_list[index].append(instance_id)
-                            if method_list[index][0] == 0:
-                                method_list[index][0] = 1
+            item_ast = item
+            if isinstance(item, ast.Call):
+                for var in ast.walk(item_ast):
+                    if isinstance(var, ast.Attribute):
+                        if isinstance(var.value, ast.Name):
+                            if var.value.id != 'self' and var.value.id != self.__current_class:
+                                continue
+                        if (var.attr in self.methods_in_class[self.__current_class]) \
+                                and not (var.attr in self.__use2) \
+                                and not (var.attr in self.__using_methods):
+                            self.__using_methods.append(var.attr)
 
-            elif isinstance(item, ast.Expr):
-                if isinstance(item.value, ast.Call):
-                    if isinstance(item.value.func, ast.Attribute):
-                        instance_id = ''
-                        i = 0
-                        if isinstance(item.value.func.value, ast.Name):
-                            instance_id = item.value.func.value.id
-                        for index in range(len(instance_list)):
-                            if instance_id in instance_list[index]:
-                                i = index
-                        if item.value.func.attr in self.methods_in_class[i]:
-                            j = self.methods_in_class[i].index(item.value.func.attr)
-                            if method_list[i][j] == 0:
-                                method_list[i][j] = 1
-        return method_list
+    def __check_global_variable_use(self, node: ast.ClassDef):
+        """
+        Check which global variable used in this class. \n
+        :param node: ClassDef node to check
+        :return: None
+        """
+        global_var = []
+        for global_item in ast.walk(node):
+            if isinstance(global_item, ast.Global):
+                for name in global_item.names:
+                    global_var.append(name)
 
-    @staticmethod
-    def __count_using_methods(method_list):
-        count = []
-        for i in range(len(method_list)):
-            count.append(0)
-            for num in method_list[i]:
-                if num == 1:
-                    count[i] += 1
-        return count
+        for global_assign in ast.walk(node):
+            if isinstance(global_assign, ast.Assign):
+                for target in global_assign.targets:
+                    for item in ast.walk(target):
+                        if isinstance(item, ast.Name):
+                            if item.id in global_var:
+                                self.__use3.append(item.id)
+            elif isinstance(global_assign, ast.AugAssign):
+                if isinstance(global_assign.target, ast.Name):
+                    if global_assign.target.id in global_var:
+                        self.__use3.append(global_assign.target.id)
 
 
-class ComputeComplexity:
+class ComplexityCounter:
+    """
+    Class for calculate complexity. (wmc, cbo, rfc, lcom)
+    """
     def __init__(self, filepath):
         self.analyzer = Analyzer()
         self.class_names = []
@@ -215,61 +349,115 @@ class ComputeComplexity:
         self.class_names.extend(self.analyzer.class_names[:])
         self.analyzer.step = 2
         self.analyzer.visit(ptree)
-        self.analyzer.step = 3
-        self.analyzer.visit(ptree)
 
     @staticmethod
     def parse_file(filepath):
+        """
+        Parsing Python files to AST nodes. \n
+        :param filepath: Path of file to parse
+        :return: AST node
+        """
         with open(filepath, "r", encoding="UTF-8") as f:
             ptree = ast.parse(f.read(), filename=filepath)
         f.close()
         return ptree
 
     def wmc(self, class_name):
+        """
+        Calculate 'wmc' complexity. \n
+        :param class_name: Name of class to analyze
+        :return: None
+        """
         if class_name in self.class_names:
             index = self.class_names.index(class_name)
-            self.wmc_value.insert(index, len(self.analyzer.methods_in_class[index]))
+            self.wmc_value.insert(index, len(self.analyzer.methods_in_class[class_name]))
 
     def cbo(self, class_name):
+        """
+        Calculate 'cbo' complexity. \n
+        :param class_name: Name of class to analyze
+        :return: None
+        """
         cbo_value = 0
+        cbo_list = []
         if class_name in self.class_names:
             index = self.class_names.index(class_name)
-            connected_classes = self.analyzer.using_class
-            for i in range(len(connected_classes)):
-                if i != index:
-                    if class_name in connected_classes[i]:
+            using_classes = self.analyzer.using_class
+            using_global_var = self.analyzer.using_global_variable
+            cbo_list.extend(using_classes[class_name][:])
+
+            for name in using_classes:
+                if name != class_name:
+                    if class_name in using_classes[name]:
+                        cbo_list.append(name)
+            cbo_value += len(cbo_list)
+
+            for name in using_global_var:
+                if name != class_name:
+                    intersection = set(using_global_var[class_name]) & set(using_global_var[name])
+                    if not self.is_empty(intersection) and not (name in cbo_list):
                         cbo_value += 1
+
             self.cbo_value.insert(index, cbo_value)
 
     def rfc(self, class_name):
+        """
+        Calculate 'rfc' complexity. \n
+        :param class_name: Name of class to analyze
+        :return: None
+        """
         if class_name in self.class_names:
             index = self.class_names.index(class_name)
-            used_methods_number = self.analyzer.used_methods_number
-            rfc_value = used_methods_number[index]
+            used_method = self.analyzer.using_method[class_name]
+            temp = []
+            M = len(used_method)
+            for i in range(M):
+                if not used_method[i]:
+                    continue
+                if self.is_empty(set(temp) & set(used_method[i])):
+                    temp.extend(used_method[i])
+                else:
+                    temp.extend(list(set(used_method[i]) - set(temp)))
+            L = len(temp)
+            rfc_value = M + L
             self.rfc_value.insert(index, rfc_value)
 
     def lcom(self, class_name):
-        q = 0
-        p = 0
+        """
+        Calculate 'lcom' complexity. \n
+        :param class_name: Name of class to analyze
+        :return: None
+        """
+        Q = 0
+        P = 0
         if class_name in self.class_names:
             index = self.class_names.index(class_name)
-            all_combinations = list(combinations(self.analyzer.using_field[index], 2))
+            all_combinations = list(combinations(self.analyzer.using_variable[class_name], 2))
             for aTuple in all_combinations:
                 combi_set = set(aTuple[0]) & set(aTuple[1])
                 if self.is_empty(combi_set):
-                    p += 1
+                    P += 1
                 else:
-                    q += 1
-            if p <= q:
+                    Q += 1
+            if P <= Q:
                 self.lcom_value.insert(index, 0)
             else:
-                self.lcom_value.insert(index, p - q)
+                self.lcom_value.insert(index, P - Q)
 
     @staticmethod
     def is_empty(item):
+        """
+        Check set is empty or not. \n
+        :param item: Set to check
+        :return: bool
+        """
         return item == set()
 
     def run(self):
+        """
+        Execute complexity methods. \n
+        :return: None
+        """
         for name in self.class_names:
             self.wmc(name)
             self.cbo(name)
@@ -277,7 +465,11 @@ class ComputeComplexity:
             self.lcom(name)
 
     def write(self, outfile):
-        self.run()
+        """
+        Write complexity value in outfile. \n
+        :param outfile: File to write complexity information
+        :return: None
+        """
         outfile = open(outfile, "w", encoding="UTF-8")
         for name in self.class_names:
             index = self.class_names.index(name)
@@ -289,9 +481,16 @@ class ComputeComplexity:
 
 
 def main():
-    filepath = "../test.py"
-    counter = ComputeComplexity(filepath)
-    counter.write("out.file")
+    if len(sys.argv) < 3:
+        print(f"Usage: {sys.argv[0]} <in.file> <out.file>\n")
+        print("<in.file> must be written in Python.\n")
+        exit(1)
+
+    infile = sys.argv[1]
+    outfile = sys.argv[2]
+    oom_counter = ComplexityCounter(infile)
+    oom_counter.run()
+    oom_counter.write(outfile)
 
 
 if __name__ == "__main__":
