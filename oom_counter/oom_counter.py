@@ -302,10 +302,10 @@ class Analyzer(ast.NodeVisitor):
                         if isinstance(var.value, ast.Name):
                             if var.value.id != 'self' and var.value.id != self.__current_class:
                                 continue
-                        if (var.attr in self.methods_in_class[self.__current_class]) \
-                                and not (var.attr in self.__use2) \
-                                and not (var.attr in self.__using_methods):
-                            self.__using_methods.append(var.attr)
+                            elif (var.attr in self.methods_in_class[self.__current_class]) \
+                                    and not (var.attr in self.__use2) \
+                                    and not (var.attr in self.__using_methods):
+                                self.__using_methods.append(var.attr)
 
     def __check_global_variable_use(self, node: ast.ClassDef):
         """
@@ -488,6 +488,7 @@ def main():
 
     infile = sys.argv[1]
     outfile = sys.argv[2]
+
     oom_counter = ComplexityCounter(infile)
     oom_counter.run()
     oom_counter.write(outfile)
