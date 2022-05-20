@@ -295,17 +295,14 @@ class Analyzer(ast.NodeVisitor):
         :return: None
         """
         for item in ast.walk(node):
-            item_ast = item
-            if isinstance(item, ast.Call):
-                for var in ast.walk(item_ast):
-                    if isinstance(var, ast.Attribute):
-                        if isinstance(var.value, ast.Name):
-                            if var.value.id != 'self' and var.value.id != self.__current_class:
-                                continue
-                            elif (var.attr in self.methods_in_class[self.__current_class]) \
-                                    and not (var.attr in self.__use2) \
-                                    and not (var.attr in self.__using_methods):
-                                self.__using_methods.append(var.attr)
+            if isinstance(item, ast.Attribute):
+                if isinstance(item.value, ast.Name):
+                    if item.value.id != 'self' and item.value.id != self.__current_class:
+                        continue
+                    elif (item.attr in self.methods_in_class[self.__current_class]) \
+                            and not (item.attr in self.__use2) \
+                            and not (item.attr in self.__using_methods):
+                        self.__using_methods.append(item.attr)
 
     def __check_global_variable_use(self, node: ast.ClassDef):
         """
