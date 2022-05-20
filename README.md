@@ -42,7 +42,7 @@ How To Run Program
          ```
     2. Enter the ***git clone URL*** command.
           ```bash
-          git clone https://github.com/dexherodex/KNUSE-20221-4-TeamFour.git
+          git clone https://github.com/dohyungpark/_KNUSE-20221-4-TeamFour.git
           ```
 ---
 * ### Execute Program
@@ -50,7 +50,7 @@ How To Run Program
     * ## metric_counter.py
     1. Use the ***cd*** to move into the cloned directory.
           ```bash
-          cd KNUSE-20221-4-TeamFour/metric_counter
+          cd _KNUSE-20221-4-TeamFour/metric_counter
           ```
     2. Enter the ***chmod*** command to change the permission of ***metric_counter.sh***.
           ```bash
@@ -64,7 +64,7 @@ How To Run Program
     * ## complexity_counter.py
     1. Use the ***cd*** to move into the cloned directory.
           ```bash
-          cd KNUSE-20221-4-TeamFour/complexity_counter
+          cd _KNUSE-20221-4-TeamFour/complexity_counter
           ```
     2. Enter the ***chmod*** command to change the permission of ***complexity_counter.sh***.
           ```bash
@@ -78,7 +78,7 @@ How To Run Program
     * ## oom_counter.py
     1. Use the ***cd*** to move into the cloned directory.
           ```bash
-          cd KNUSE-20221-4-TeamFour/oom_counter
+          cd _KNUSE-20221-4-TeamFour/oom_counter
           ```
     2. Enter the ***chmod*** command to change the permission of ***oom_counter.sh***.
           ```bash
