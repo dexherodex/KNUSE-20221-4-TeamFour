@@ -1,11 +1,18 @@
 import ast
+import io
 import sys
+import git
 
 
-def read_lines(filepath):
+def __read_lines(filepath):
     """ file to lines """
-    with open(filepath, "r", encoding="UTF-8") as f:
-        lines = f.readlines()
+    if isinstance(filepath, str):
+        with open(filepath, "r", encoding="UTF-8") as f:
+            lines = f.readlines()
+
+    elif isinstance(filepath, git.objects.blob.Blob):
+        with io.BytesIO(filepath.data_stream.read()) as f:
+            lines = f.readlines()
 
     f.close()
 
@@ -14,7 +21,7 @@ def read_lines(filepath):
 
 def count_lines_of_code(filepath):
     """ Count number of lines in code"""
-    lines = read_lines(filepath)
+    lines = __read_lines(filepath)
 
     return len(lines)
 
@@ -22,7 +29,7 @@ def count_lines_of_code(filepath):
 def count_blank(filepath):
     """ Count number of blanks in file """
     num_blank = 0
-    lines = read_lines(filepath)
+    lines = __read_lines(filepath)
 
     for aline in lines:
         if aline.strip() == '':
@@ -38,16 +45,16 @@ def count_comment(filepath):
     quote_is_open = False  # Variable of whether single quote is open
     double_quote_is_open = False  # Variable of whether double quote is open
     paren_is_open = [False, False, False]  # List of whether parenthesis is open (0: (), 1: {}, 2: [])
-    lines = read_lines(filepath)
+    lines = __read_lines(filepath)
 
     for aline in lines:
         stripped_line = list(aline.strip())
-        paren_is_open = check_paren(stripped_line, paren_is_open, quote_is_open, double_quote_is_open)
+        paren_is_open = __check_paren(stripped_line, paren_is_open, quote_is_open, double_quote_is_open)
 
         if not paren_is_open[0] and not paren_is_open[1] and not paren_is_open[2]:
             # when code with parentheses is closed, check about quote comment
             value, quote_is_open, double_quote_is_open \
-                = count_three_quotes(stripped_line, quote_is_open, double_quote_is_open)
+                = __count_three_quotes(stripped_line, quote_is_open, double_quote_is_open)
 
             if value > 0:
                 # if quote comment is open at current line
@@ -60,7 +67,7 @@ def count_comment(filepath):
 
             elif value <= 0 and not quote_is_open and not double_quote_is_open:
                 # if quote comment is not open then check hash(#) comment
-                value = count_hash(stripped_line)
+                value = __count_hash(stripped_line)
                 if value == 1:
                     num_comment += 1
                     num_comment_only += value
@@ -70,7 +77,7 @@ def count_comment(filepath):
                     continue
 
         elif not quote_is_open and not double_quote_is_open:
-            value = count_hash(stripped_line)
+            value = __count_hash(stripped_line)
             if value == 1:
                 num_comment += 1
                 num_comment_only += value
@@ -82,7 +89,7 @@ def count_comment(filepath):
     return num_comment, num_comment_only
 
 
-def count_hash(stripped_line):
+def __count_hash(stripped_line):
     """ Count number of hash(#) comment """
     num_hash = 0
     first = stripped_line[:1]
@@ -90,9 +97,9 @@ def count_hash(stripped_line):
     if '#' in stripped_line:
         if first == ['#']:
             num_hash = 1
-        elif hash_in_string(stripped_line, '"'):
+        elif __hash_in_string(stripped_line, '"'):
             num_hash = 0
-        elif hash_in_string(stripped_line, "'"):
+        elif __hash_in_string(stripped_line, "'"):
             num_hash = 0
         else:
             num_hash = 2
@@ -100,7 +107,7 @@ def count_hash(stripped_line):
     return num_hash
 
 
-def hash_in_string(stripped_line, quote):
+def __hash_in_string(stripped_line, quote):
     """ Check whether hash(#) is in string """
     quote_is_open = False
     hash_in_str = False
@@ -135,12 +142,12 @@ def hash_in_string(stripped_line, quote):
     return hash_in_str
 
 
-def count_three_quotes(stripped_line, quote_is_open, double_quote_is_open):
+def __count_three_quotes(stripped_line, quote_is_open, double_quote_is_open):
     """ Count number of quotes comment """
     num_comment = 0
 
-    quotes_pair = check_three_quotes(stripped_line, "'", quote_is_open)
-    double_quotes_pair = check_three_quotes(stripped_line, '"', double_quote_is_open)
+    quotes_pair = __check_three_quotes(stripped_line, "'", quote_is_open)
+    double_quotes_pair = __check_three_quotes(stripped_line, '"', double_quote_is_open)
 
     """ single quote """
     if quotes_pair == 2 and not quote_is_open:
@@ -169,7 +176,7 @@ def count_three_quotes(stripped_line, quote_is_open, double_quote_is_open):
     return num_comment, quote_is_open, double_quote_is_open
 
 
-def check_three_quotes(stripped_line, quote, quote_open):
+def __check_three_quotes(stripped_line, quote, quote_open):
     """ Check whether three quote comment is exist """
     if not stripped_line:
         return -1
@@ -203,7 +210,7 @@ def check_three_quotes(stripped_line, quote, quote_open):
             return 0
 
         # when quote is in parentheses
-        paren_is_open = check_paren(stripped_line, paren_is_open, quote_open, quote_open)
+        paren_is_open = __check_paren(stripped_line, paren_is_open, quote_open, quote_open)
 
         if not paren_is_open[0] and not paren_is_open[1] and not paren_is_open[2]:
             if item == compare_quote:
@@ -238,10 +245,15 @@ def check_three_quotes(stripped_line, quote, quote_open):
         return 0
 
 
-def parse_file(filepath):
+def __parse_file(filepath):
     """ Parsing file to AST """
-    with open(filepath, "r", encoding="UTF-8") as f:
-        ptree = ast.parse(f.read(), filename=filepath)
+    if isinstance(filepath, str):
+        with open(filepath, "r", encoding="UTF-8") as f:
+            ptree = ast.parse(f.read(), filename=filepath)
+
+    elif isinstance(filepath, git.objects.blob.Blob):
+        with io.BytesIO(filepath.data_stream.read()) as f:
+            ptree = ast.parse(f.read())
 
     f.close()
 
@@ -250,7 +262,7 @@ def parse_file(filepath):
 
 def count_function(filepath):
     """ Count number of functions in file with AST """
-    ptree = parse_file(filepath)
+    ptree = __parse_file(filepath)
     num_func = 0
 
     for item in ast.walk(ptree):
@@ -260,7 +272,7 @@ def count_function(filepath):
     return num_func
 
 
-def check_paren(stripped_line, paren_is_open, quote_is_open, double_quote_is_open):
+def __check_paren(stripped_line, paren_is_open, quote_is_open, double_quote_is_open):
     """ Check whether parentheses are open or close """
     for item in stripped_line:
         if item == '(' and not paren_is_open[0] and not quote_is_open and not double_quote_is_open:
@@ -286,8 +298,7 @@ def count_standalone_paren(filepath):
     num_standalone = 0
     is_standalone = False
 
-    with open(filepath, "r", encoding="UTF-8") as f:
-        lines = f.readlines()
+    lines = __read_lines(filepath)
 
     for aline in lines:
         striped_line = list(aline.strip())
@@ -303,8 +314,6 @@ def count_standalone_paren(filepath):
         if is_standalone:
             num_standalone += 1
             is_standalone = False
-
-    f.close()
 
     return num_standalone
 
