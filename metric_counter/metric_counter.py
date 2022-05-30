@@ -19,17 +19,15 @@ def __read_lines(filepath):
     return lines
 
 
-def count_lines_of_code(filepath):
+def count_lines_of_code(lines):
     """ Count number of lines in code"""
-    lines = __read_lines(filepath)
 
     return len(lines)
 
 
-def count_blank(filepath):
+def count_blank(lines):
     """ Count number of blanks in file """
     num_blank = 0
-    lines = __read_lines(filepath)
 
     for aline in lines:
         if aline.strip() == '':
@@ -38,14 +36,13 @@ def count_blank(filepath):
     return num_blank
 
 
-def count_comment(filepath):
+def count_comment(lines):
     """ Count number of comments in file """
     num_comment = 0
     num_comment_only = 0
     quote_is_open = False  # Variable of whether single quote is open
     double_quote_is_open = False  # Variable of whether double quote is open
     paren_is_open = [False, False, False]  # List of whether parenthesis is open (0: (), 1: {}, 2: [])
-    lines = __read_lines(filepath)
 
     for aline in lines:
         stripped_line = list(aline.strip())
@@ -260,9 +257,8 @@ def __parse_file(filepath):
     return ptree
 
 
-def count_function(filepath):
+def count_function(ptree):
     """ Count number of functions in file with AST """
-    ptree = __parse_file(filepath)
     num_func = 0
 
     for item in ast.walk(ptree):
@@ -293,12 +289,10 @@ def __check_paren(stripped_line, paren_is_open, quote_is_open, double_quote_is_o
     return paren_is_open
 
 
-def count_standalone_paren(filepath):
+def count_standalone_paren(lines):
     """ Count standalone parenthesis """
     num_standalone = 0
     is_standalone = False
-
-    lines = __read_lines(filepath)
 
     for aline in lines:
         striped_line = list(aline.strip())
@@ -329,16 +323,19 @@ def main():
         print("\"in.file\" must be written by python language.")
         exit(1)
 
+    lines = __read_lines(infile)
     # count number of lines if file
-    num_all_code_lines = count_lines_of_code(infile)
+    num_all_code_lines = count_lines_of_code(lines)
     # count number of blanks in file
-    num_blank = count_blank(infile)
+    num_blank = count_blank(lines)
     # count number of comment lines
-    num_comment, num_only_comment = count_comment(infile)
+    num_comment, num_only_comment = count_comment(lines)
     # count standalone parenthesis
-    num_standalone = count_standalone_paren(infile)
+    num_standalone = count_standalone_paren(lines)
+
+    ptree = __parse_file(infile)
     # count number of function
-    num_function = count_function(infile)
+    num_function = count_function(ptree)
 
     # number of lines without blanks (LOC)
     num_code_lines = num_all_code_lines - num_blank - num_only_comment
