@@ -120,7 +120,7 @@ How To Run Program
            ```
       5. Run the program with _**in.yaml**_ and _**out.json**_.
             ```bash
-            ./metric_counter.sh in.yaml out.json
+            ./metric_tracker.sh in.yaml out.json
             ```
 ---
 Language
