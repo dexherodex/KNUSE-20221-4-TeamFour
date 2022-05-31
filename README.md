@@ -117,7 +117,7 @@ How To Run Program
             ```
       4. Enter the _**chmod**_ command to change the permission of _**metric_counter.sh**_.
            ```bash
-              chmod 755 ./metric_tracker.sh
+           chmod 755 ./metric_tracker.sh
            ```
       5. Run the program with _**in.yaml**_ and _**out.json**_.
             ```bash
