@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python3 ./oom_counter.py "$1" "$2"
+python3 ./metric_tracker.py "$1" "$2"
