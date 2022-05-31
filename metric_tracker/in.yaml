@@ -1,4 +1,4 @@
-repository: C:\Users\Dave\projects\Git\py7zr
+repository: /home/ubuntu/git/py7zr
 target_path: py7zr/py7zr.py
 commits:
    - b3e1c3
