@@ -101,6 +101,8 @@ How To Run Program
       2. Install the necessary packages.
             ```bash
             pip install pyyaml
+            ```
+            ```bash
             pip install gitpython
             ```
       3. Modify _**in.yaml**_ as in the format below. (You can also refer to sample(_**in.yaml**_) in **metric_tracker**.)
