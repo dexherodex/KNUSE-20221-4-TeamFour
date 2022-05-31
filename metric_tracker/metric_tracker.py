@@ -6,6 +6,7 @@ import git
 import os
 import sys
 import time
+
 from metric_counter import metric_counter
 
 
@@ -14,17 +15,15 @@ class Tracker:
     def __init__(self):
         self.repository = ""
         self.target_path = ""
-        self.commits = []
-        self.number_of_commit = 0
-        self.metric_values = {}
+        self.commits = list()
+        self.metric_values = dict()
 
     def input(self, infile):
         parse = self.parse_yaml(infile)
         self.repository = parse['repository']
         self.target_path = parse['target_path']
-        for item in parse['commits']:
-            self.commits.append(item)
-            self.number_of_commit += 1
+        for commit_hash in parse['commits']:
+            self.commits.append(commit_hash)
 
     @staticmethod
     def parse_yaml(file_path):
@@ -50,7 +49,7 @@ class Tracker:
         for commit_hash in self.commits:
             commit = repo.commit(commit_hash)
             # self.print_info(commit)
-            self.metric_values[commit_hash] = {}
+            self.metric_values[commit_hash] = dict()
             try:
                 target = commit.tree / self.target_path
 

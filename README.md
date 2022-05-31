@@ -45,49 +45,73 @@ How To Run Program
           git clone https://github.com/dohyungpark/KNUSE-20221-4-TeamFour.git
           ```
 ---
-* ### Execute Program
-     (***Windows*** needs to install ***Windows Subsystem for Linux*** for running ***Shell Script*** file.)
-    * ## metric_counter.py
-    1. Use the ***cd*** to move into the cloned directory.
-          ```bash
-          cd KNUSE-20221-4-TeamFour/metric_counter
-          ```
-    2. Enter the ***chmod*** command to change the permission of ***metric_counter.sh***.
-          ```bash
-          chmod 755 ./metric_counter.sh
-          ```
-    3. Run the program with ***in.file*** and ***out.file***. (The ***in.file*** must be written by ***python***.)
-          ```bash
-          ./metric_counter.sh in.py out.file
-          ```
+  * ### Execute Program
+       (***Windows*** needs to install ***Windows Subsystem for Linux*** for running ***Shell Script*** file.)
+      * ## metric_counter.py
+      1. Use the ***cd*** to move into the cloned directory.
+            ```bash
+            cd KNUSE-20221-4-TeamFour/metric_counter
+            ```
+      2. Enter the ***chmod*** command to change the permission of ***metric_counter.sh***.
+            ```bash
+            chmod 755 ./metric_counter.sh
+            ```
+      3. Run the program with ***in.file*** and ***out.file***. (The ***in.file*** must be written by ***python***.)
+            ```bash
+            ./metric_counter.sh in.py out.file
+            ```
     
-    * ## complexity_counter.py
-    1. Use the ***cd*** to move into the cloned directory.
-          ```bash
-          cd KNUSE-20221-4-TeamFour/complexity_counter
-          ```
-    2. Enter the ***chmod*** command to change the permission of ***complexity_counter.sh***.
-          ```bash
-          chmod 755 ./complexity_counter.sh
-          ```
-    3. Run the program with ***in.file*** and ***out.file***. (The ***in.file*** must be written by ***python***.)
-          ```bash
-          ./complexity_counter.sh complexity.sample out.file
-          ```
+      * ## complexity_counter.py
+      1. Use the ***cd*** to move into the cloned directory.
+            ```bash
+            cd KNUSE-20221-4-TeamFour/complexity_counter
+            ```
+      2. Enter the ***chmod*** command to change the permission of ***complexity_counter.sh***.
+            ```bash
+            chmod 755 ./complexity_counter.sh
+            ```
+      3. Run the program with ***in.file*** and ***out.file***. (The ***in.file*** must be written by ***python***.)
+            ```bash
+            ./complexity_counter.sh complexity.sample out.file
+            ```
        
-    * ## oom_counter.py
-    1. Use the ***cd*** to move into the cloned directory.
-          ```bash
-          cd KNUSE-20221-4-TeamFour/oom_counter
-          ```
-    2. Enter the ***chmod*** command to change the permission of ***oom_counter.sh***.
-          ```bash
-          chmod 755 ./oom_counter.sh
-          ```
-    3. Run the program with ***in.file*** and ***out.file***. (The ***in.file*** must be written by ***python***.)
-          ```bash
-          ./oom_counter.sh oom.sample out.file
-          ```
+      * ## oom_counter.py
+      1. Use the ***cd*** to move into the cloned directory.
+            ```bash
+            cd KNUSE-20221-4-TeamFour/oom_counter
+            ```
+      2. Enter the ***chmod*** command to change the permission of ***oom_counter.sh***.
+            ```bash
+            chmod 755 ./oom_counter.sh
+            ```
+      3. Run the program with ***in.file*** and ***out.file***. (The ***in.file*** must be written by ***python***.)
+            ```bash
+            ./oom_counter.sh oom.sample out.file
+            ```
+       
+      * ## metric_tracker.py
+      1. Use the ***cd*** to move into the cloned directory.
+            ```bash
+            cd KNUSE-20221-4-TeamFour/metric_counter
+            ```
+      2. Enter the _**chmod**_ command to change the permission of _**metric_counter.sh**_.
+            ```bash
+            chmod 755 ./metric_counter.sh
+            ```
+      3. Modify _**in.yaml**_ as in the format below. (You can also refer to sample(_**in.yaml**_) in **metric_tracker**.)
+            ```yaml
+            repository: YourTargetRepository
+            target_path: YourTargetFilePath
+            commits:
+               - YourCommit1
+               - YourCommit2
+               - YourCommit3
+                  ...
+            ```
+      4. Run the program with _**in.yaml**_ and _**out.json**_.
+            ```bash
+            ./metric_counter.sh in.yaml out.json
+            ```
 ---
 Language
 --------
