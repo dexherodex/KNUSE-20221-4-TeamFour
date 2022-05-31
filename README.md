@@ -44,13 +44,17 @@ How To Run Program
           ```bash
           git clone https://github.com/dohyungpark/KNUSE-20221-4-TeamFour.git
           ```
+    3. Use the ***cd*** to move into the cloned directory.
+          ```bash
+         cd KNUSE-20221-4-TeamFour
+         ```
 ---
   * ### Execute Program
        (***Windows*** needs to install ***Windows Subsystem for Linux*** for running ***Shell Script*** file.)
       * ## metric_counter.py
-      1. Use the ***cd*** to move into the cloned directory.
+      1. Use the ***cd*** to move into **metric_counter**.
             ```bash
-            cd KNUSE-20221-4-TeamFour/metric_counter
+            cd metric_counter
             ```
       2. Enter the ***chmod*** command to change the permission of ***metric_counter.sh***.
             ```bash
@@ -62,9 +66,9 @@ How To Run Program
             ```
     
       * ## complexity_counter.py
-      1. Use the ***cd*** to move into the cloned directory.
+      1. Use the ***cd*** to move into **complexity_counter**.
             ```bash
-            cd KNUSE-20221-4-TeamFour/complexity_counter
+            cd complexity_counter
             ```
       2. Enter the ***chmod*** command to change the permission of ***complexity_counter.sh***.
             ```bash
@@ -76,9 +80,9 @@ How To Run Program
             ```
        
       * ## oom_counter.py
-      1. Use the ***cd*** to move into the cloned directory.
+      1. Use the ***cd*** to move into the **oom_counter**.
             ```bash
-            cd KNUSE-20221-4-TeamFour/oom_counter
+            cd oom_counter
             ```
       2. Enter the ***chmod*** command to change the permission of ***oom_counter.sh***.
             ```bash
@@ -90,13 +94,15 @@ How To Run Program
             ```
        
       * ## metric_tracker.py
-      1. Use the ***cd*** to move into the cloned directory.
+      1. Use the ***cd*** to move into **metric_tracker**.
             ```bash
-            cd KNUSE-20221-4-TeamFour/metric_counter
+            cd metric_tracker
             ```
-      2. Enter the _**chmod**_ command to change the permission of _**metric_counter.sh**_.
+      2. Install the necessary packages.
             ```bash
-            chmod 755 ./metric_counter.sh
+            pip install yaml
+            pip install json
+            pip install gitpython
             ```
       3. Modify _**in.yaml**_ as in the format below. (You can also refer to sample(_**in.yaml**_) in **metric_tracker**.)
             ```yaml
@@ -106,9 +112,13 @@ How To Run Program
                - YourCommit1
                - YourCommit2
                - YourCommit3
-                  ...
+                    ...
             ```
-      4. Run the program with _**in.yaml**_ and _**out.json**_.
+      4. Enter the _**chmod**_ command to change the permission of _**metric_counter.sh**_.
+           ```bash
+              chmod 755 ./metric_tracker.sh
+           ```
+      5. Run the program with _**in.yaml**_ and _**out.json**_.
             ```bash
             ./metric_counter.sh in.yaml out.json
             ```
